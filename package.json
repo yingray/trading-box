@@ -1,0 +1,19 @@
+{
+  "name": "trading-box",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve:api:tvmock": "prism mock api/trading-view.yaml",
+    "serve:api:tvdoc": "npx redocly preview-docs api/trading-view.yaml -p 5566",
+    "gen:ng": "openapi --input api/trading-view.yaml --output ./web/src/api --client angular"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@redocly/cli": "^1.0.0-beta.104",
+    "@stoplight/prism-cli": "^4.10.1",
+    "openapi-typescript": "^5.4.1",
+    "openapi-typescript-codegen": "^0.23.0"
+  }
+}
