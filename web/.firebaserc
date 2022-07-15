@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "trading-box-8aad9": {
+      "hosting": {
+        "web": [
+          "trading-box-8aad9"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "trading-box-8aad9"
+  }
+}
