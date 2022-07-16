@@ -3,9 +3,11 @@ import Big from 'big.js';
 import { fromPairs, uniqBy } from 'lodash';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
+import { MenuItem } from 'primeng/api';
 import { BybitService } from './core/services/bybit/bybit.service';
 import { TradingBoxService } from './core/services/trading-box/trading-box.service';
 import { Order, Position, Side } from './shared/models/order.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -16,16 +18,40 @@ export class AppComponent implements OnInit {
   title = 'web';
   Side = Side;
 
+  items: MenuItem[];
+  symbols: any[];
+  sides: any[];
+
+  formGroup: FormGroup;
   orders$: Observable<Order[]>;
   unfilledOrders$: Observable<any>;
   market$: Observable<any>;
   markets$: Observable<any>;
   positions$: Observable<any>;
+  positionsSum$: Observable<any>;
 
   constructor(
+    private fb: FormBuilder,
     private bybitService: BybitService,
     private tradingBoxService: TradingBoxService
   ) {
+    this.items = [{ label: 'Trading Box' }];
+    this.symbols = [
+      { name: 'BTCUSD', code: 'BTCUSD' },
+      { name: 'ETHUSD', code: 'ETHUSD' },
+    ];
+    this.sides = [
+      { name: 'Buy', code: Side.buy },
+      { name: 'Sell', code: Side.sell },
+    ];
+    this.formGroup = fb.group({
+      symbol: [{ name: 'ETHUSD', code: 'ETHUSD' }, Validators.required],
+      price: [1000, Validators.required],
+      side: [{ name: 'Buy', code: Side.buy }, Validators.required],
+      size: [1, Validators.required],
+      post_date: [new Date(), Validators.required],
+    });
+
     this.orders$ = tradingBoxService.getAllOrdersWithCheck();
     this.unfilledOrders$ = this.orders$.pipe(
       map((orders) => orders.filter((order) => !order.fill_date))
@@ -69,6 +95,21 @@ export class AppComponent implements OnInit {
         return positions;
       })
     );
+
+    this.positionsSum$ = this.positions$.pipe(
+      map((positions) => {
+        const result = positions.reduce(
+          (acc: any, cur: Position) => ({
+            size: Big(acc.size)
+              .add(Big(cur.order.size).mul(Big(cur.market_price)))
+              .toNumber(),
+            pnl: Big(acc.pnl).add(Big(cur.pnl)).toNumber(),
+          }),
+          { size: 0, pnl: 0 }
+        );
+        return result;
+      })
+    );
   }
 
   getSymbolIcon(symbol: string): string {
@@ -76,14 +117,15 @@ export class AppComponent implements OnInit {
     return `./assets/${sym}.svg`;
   }
 
-  ngOnInit(): void {
-    // const order = {
-    //   symbol: 'ETHUSD',
-    //   post_date: new Date('Wed Jul 13 2022 10:34:32 GMT+0800'),
-    //   size: 0.01,
-    //   price: 1050,
-    //   side: Side.sell,
-    // } as Order;
-    // this.tradingBoxService.postOrder(order);
+  ngOnInit(): void {}
+
+  onSubmit(): void {
+    this.tradingBoxService.postOrder({
+      symbol: this.formGroup.value.symbol.code,
+      post_date: new Date(this.formGroup.value.post_date),
+      size: this.formGroup.value.size,
+      price: this.formGroup.value.price,
+      side: this.formGroup.value.side.code,
+    } as Order);
   }
 }

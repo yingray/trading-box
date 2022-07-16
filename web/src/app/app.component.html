@@ -1,120 +1,206 @@
-<p-table
-  [value]="markets$ | async"
-  responsiveLayout="scroll"
-  styleClass="p-datatable-gridlines"
->
-  <ng-template pTemplate="caption">Market</ng-template>
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Symbol</th>
-      <th>Market Price</th>
-    </tr>
+<p-menubar [model]="items">
+  <ng-template pTemplate="start">
+    <img src="assets/kmd.svg" height="40" class="mr-2" />
   </ng-template>
-  <ng-template pTemplate="body" let-market>
-    <tr>
-      <td>
-        <img [src]="getSymbolIcon(market[0])" width="18px" /> {{ market[0] }}
-      </td>
-      <td>{{ market[1] | currency }}</td>
-    </tr>
-  </ng-template>
-</p-table>
+</p-menubar>
 
 <br />
 
-<p-table
-  [value]="positions$ | async"
-  responsiveLayout="scroll"
-  styleClass="p-datatable-gridlines"
->
-  <ng-template pTemplate="caption">Position</ng-template>
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Date</th>
-      <th>Symbol</th>
-      <th>Side</th>
-      <th>Position Size</th>
-      <th>National Size</th>
-      <th>Market Price</th>
-      <th>PnL</th>
-      <th>PnL(%)</th>
-      <th>Avg Open Price</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-position>
-    <tr>
-      <td>{{ position.order.fill_date | date: "short" }}</td>
-      <td>
-        <img [src]="getSymbolIcon(position.order.symbol)" width="18px" />
-        {{ position.order.symbol }}
-      </td>
-      <td>
-        <p-tag
-          *ngIf="position.order.side === Side.buy; else sellTag"
-          severity="success"
+<p-accordion>
+  <p-accordionTab header="Summary" [selected]="true">
+    <p-table
+      [value]="markets$ | async"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines"
+    >
+      <ng-template pTemplate="caption">Market</ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Symbol</th>
+          <th>Market Price</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-market>
+        <tr>
+          <td>
+            <img [src]="getSymbolIcon(market[0])" width="18px" />
+            {{ market[0] }}
+          </td>
+          <td>{{ market[1] | currency }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <br />
+
+    <p-table
+      [value]="positions$ | async"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines"
+    >
+      <ng-template pTemplate="caption">Position</ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date</th>
+          <th>Symbol</th>
+          <th>Side</th>
+          <th>Position Size</th>
+          <th>National Size</th>
+          <th>Market Price</th>
+          <th>PnL</th>
+          <th>PnL(%)</th>
+          <th>Avg Open Price</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-position>
+        <tr>
+          <td>{{ position.order.fill_date | date: "short" }}</td>
+          <td>
+            <img [src]="getSymbolIcon(position.order.symbol)" width="18px" />
+            {{ position.order.symbol }}
+          </td>
+          <td>
+            <p-tag
+              *ngIf="position.order.side === Side.buy; else sellTag"
+              severity="success"
+            >
+              {{ position.order.side }}
+            </p-tag>
+            <ng-template #sellTag>
+              <p-tag severity="danger">
+                {{ position.order.side }}
+              </p-tag>
+            </ng-template>
+          </td>
+          <td>{{ position.order.size }}</td>
+          <td>{{ position.order.size * position.market_price | currency }}</td>
+          <td>{{ position.market_price | currency }}</td>
+          <td>{{ position.pnl | currency }}</td>
+          <td severity="danger">{{ position.pnlr }}</td>
+          <td>{{ position.order.price | currency }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        <div
+          *ngIf="positionsSum$ | async as summary"
+          class="p-d-flex p-ai-center p-jc-between"
         >
-          {{ position.order.side }}
-        </p-tag>
-        <ng-template #sellTag>
-          <p-tag severity="danger">
-            {{ position.order.side }}
-          </p-tag>
-        </ng-template>
-      </td>
-      <td>{{ position.order.size }}</td>
-      <td>{{ position.order.size * position.market_price | currency }}</td>
-      <td>{{ position.market_price | currency }}</td>
-      <td>{{ position.pnl | currency }}</td>
-      <td severity="danger">{{ position.pnlr }}</td>
-      <td>{{ position.order.price | currency }}</td>
-    </tr>
-  </ng-template>
-</p-table>
+          Total national size:
+          {{ summary.size | currency }}, Total PnL:
+          {{ summary.pnl | currency }} ({{ summary.pnl / summary.size * 100 | number: '0.01' }}%)
+        </div>
+      </ng-template>
+    </p-table>
+  </p-accordionTab>
 
-<br />
+  <p-accordionTab header="Post Order">
+    <p-card>
+      <div class="p-grid p-fluid" [formGroup]="formGroup">
+        <div class="p-col-12 p-md-6 p-lg-4">
+          <p-dropdown
+            [options]="symbols"
+            formControlName="symbol"
+            placeholder="Select a Symbol"
+            optionLabel="name"
+          ></p-dropdown>
+        </div>
+        <div class="p-col-12 p-md-6 p-lg-4">
+          <p-selectButton
+            [options]="sides"
+            formControlName="side"
+            optionLabel="name"
+          ></p-selectButton>
+        </div>
+        <div class="p-col-12 p-md-6 p-lg-4">
+          <p-inputNumber
+            formControlName="price"
+            [showButtons]="true"
+            mode="currency"
+            currency="USD"
+          ></p-inputNumber>
+        </div>
+        <div class="p-col-12 p-md-6 p-lg-4">
+          <p-inputNumber
+            formControlName="size"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            [step]="0.001"
+            decrementButtonClass="p-button-danger"
+            incrementButtonClass="p-button-success"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+          ></p-inputNumber>
+        </div>
+        <div class="p-col-12 p-md-6 p-lg-4">
+          <p-calendar
+            formControlName="post_date"
+            [showTime]="true"
+            hourFormat="24"
+          ></p-calendar>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button
+          type="submit"
+          label="Submit"
+          icon="pi pi-check"
+          [disabled]="formGroup.invalid"
+          (click)="onSubmit()"
+        ></p-button>
+      </ng-template>
+    </p-card>
 
-<p-table
-  [value]="unfilledOrders$ | async"
-  responsiveLayout="scroll"
-  styleClass="p-datatable-gridlines"
->
-  <ng-template pTemplate="caption">Unfilled Orders</ng-template>
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Order Date</th>
-      <th>Symbol</th>
-      <th>Side</th>
-      <th>Position Size</th>
-      <!-- <th>National Size</th> -->
-      <!-- <th>Market Price</th>
-      <th>PnL</th>
-      <th>PnL(%)</th> -->
-      <th>Avg Open Price</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-order>
-    <tr>
-      <td>{{ order.post_date | date: "short" }}</td>
-      <td>
-        <img [src]="getSymbolIcon(order.symbol)" width="18px" />
-        {{ order.symbol }}
-      </td>
-      <td>
-        <p-tag *ngIf="order.side === Side.buy; else sellTag" severity="success">
-          {{ order.side }}
-        </p-tag>
-        <ng-template #sellTag>
-          <p-tag severity="danger">
-            {{ order.side }}
-          </p-tag>
-        </ng-template>
-      </td>
-      <td>{{ order.size }}</td>
-      <!-- <td>{{ order.size * market_price | number }}</td> -->
-      <!-- <td>{{ market_price }}</td> -->
-      <!-- <td>{{ pnl }}</td> -->
-      <!-- <td severity="danger">{{ pnlr }}</td> -->
-      <td>{{ order.price | currency }}</td>
-    </tr>
-  </ng-template>
-</p-table>
+    <br />
+
+    <p-table
+      [value]="unfilledOrders$ | async"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines"
+    >
+      <ng-template pTemplate="caption">Unfilled Orders</ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Order Date</th>
+          <th>Symbol</th>
+          <th>Side</th>
+          <th>Position Size</th>
+          <!-- <th>National Size</th> -->
+          <!-- <th>Market Price</th>
+          <th>PnL</th>
+          <th>PnL(%)</th> -->
+          <th>Avg Open Price</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>{{ order.post_date | date: "short" }}</td>
+          <td>
+            <img [src]="getSymbolIcon(order.symbol)" width="18px" />
+            {{ order.symbol }}
+          </td>
+          <td>
+            <p-tag
+              *ngIf="order.side === Side.buy; else sellTag"
+              severity="success"
+            >
+              {{ order.side }}
+            </p-tag>
+            <ng-template #sellTag>
+              <p-tag severity="danger">
+                {{ order.side }}
+              </p-tag>
+            </ng-template>
+          </td>
+          <td>{{ order.size }}</td>
+          <!-- <td>{{ order.size * market_price | number }}</td> -->
+          <!-- <td>{{ market_price }}</td> -->
+          <!-- <td>{{ pnl }}</td> -->
+          <!-- <td severity="danger">{{ pnlr }}</td> -->
+          <td>{{ order.price | currency }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-accordionTab>
+  <p-accordionTab header="Header 3"> Content 3 </p-accordionTab>
+</p-accordion>
