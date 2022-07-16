@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map } from '@firebase/util';
-import { addMinutes } from 'date-fns';
+import { addMinutes, isAfter } from 'date-fns';
+import { isEmpty } from 'lodash';
 import { combineLatest, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { KLine } from 'src/app/shared/models/kline.model';
@@ -25,8 +26,12 @@ export class TradingBoxService {
           (order) =>
             ({
               ...order,
-              post_date: new Date(order.post_date),
-              fill_date: new Date(order.fill_date),
+              post_date: order.post_date
+                ? new Date(order.post_date)
+                : undefined,
+              fill_date: order.fill_date
+                ? new Date(order.fill_date)
+                : undefined,
             } as Order)
         )
     );
@@ -41,20 +46,28 @@ export class TradingBoxService {
   }
 
   postOrder(order: Order) {
-    const orderKey = `order-${order.post_date}`;
+    const postDate = getDateForZeroSecOfMin(order.post_date);
+    const orderKey = [
+      'order',
+      postDate.getTime(),
+      order.side,
+      order.size,
+      order.price,
+    ].join('-');
     storage.set(orderKey, order);
   }
 
   checkOrderIsFilled(order: Order, from?: Date): Observable<Order> {
-    if (order.fill_date) {
+    if (order.fill_date || (from && isAfter(from, new Date()))) {
       return of(order);
     }
 
     const postDate = getDateForZeroSecOfMin(order.post_date);
-    return this.bybitService.getKLine(order.symbol, from || postDate).pipe(
+    const kFrom = from ? from : postDate;
+    return this.bybitService.getKLine(order.symbol, kFrom).pipe(
       switchMap((resp) => {
         const kLines = resp.result as KLine[];
-        if (!resp.result.length) {
+        if (isEmpty(resp) || !resp.result.length) {
           return of(order);
         }
 
@@ -64,7 +77,10 @@ export class TradingBoxService {
         );
 
         if (!fill) {
-          const next = addMinutes(postDate, 200);
+          const next = addMinutes(kFrom, 200);
+          if (isAfter(next, new Date())) {
+            return of(order);
+          }
           return this.checkOrderIsFilled(order, next);
         }
 

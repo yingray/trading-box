@@ -45,12 +45,12 @@ export class BybitService {
 
   getKLine(symbol: string, dateFrom: Date) {
     const timeStr = String(getTimeToSec(getDateForZeroSecOfMin(dateFrom)));
-    const qs = {
+    const qs = getQS({
       symbol: symbol,
       interval: '1',
       from: timeStr,
       limit: '200',
-    };
+    });
     const url = `${this.baseUrl}/v2/public/kline/list?${qs}`;
     return this.cacheHttpGet(url);
   }
