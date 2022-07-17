@@ -9,6 +9,7 @@ export type Order = {
   size: number;
   price: number;
   side: Side;
+  latest_checked_date?: Date;
   fill_date?: Date;
   stop_loss_price?: number;
   take_profit_price?: number;

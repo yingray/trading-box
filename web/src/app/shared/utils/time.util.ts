@@ -7,6 +7,6 @@ export const getDateForZeroSecOfMin = (date: Date): Date => {
   return new Date(date.setSeconds(0, 0));
 };
 
-export const getTimeToSec = (date: Date): number => {
+export const getBybitTime = (date: Date): number => {
   return Big(date.getTime()).div(1000).toNumber();
 };

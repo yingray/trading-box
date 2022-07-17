@@ -9,3 +9,7 @@ export type KLine = {
   turnover: string;
   volume: string;
 };
+
+export type KLineMap = {
+  [bybit_open_time: number]: KLine;
+};
