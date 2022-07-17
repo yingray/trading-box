@@ -3,6 +3,11 @@ export enum Side {
   sell = 'sell',
 }
 
+export enum CloseType {
+  success = 'success',
+  fail = 'fail',
+}
+
 export type Order = {
   symbol: string;
   post_date: Date;
@@ -13,6 +18,8 @@ export type Order = {
   fill_date?: Date;
   stop_loss_price?: number;
   take_profit_price?: number;
+  close_date?: Date;
+  close_type?: CloseType;
 };
 
 export type Position = {

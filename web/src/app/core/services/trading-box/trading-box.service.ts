@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { KLine, KLineMap } from 'src/app/shared/models/kline.model';
-import { Order, Side } from 'src/app/shared/models/order.model';
+import { CloseType, Order, Side } from 'src/app/shared/models/order.model';
 import { storage } from 'src/app/shared/utils/storage.util';
 import {
   getDateForZeroSecOfMin,
@@ -60,20 +60,23 @@ export class TradingBoxService {
   }
 
   checkOrderIsFilled(order: Order): Observable<Order> {
-    if (order.fill_date) {
+    if (order.close_type) {
       return of(order);
     }
 
     console.log('--- check ---');
+    const checkedDate = order.latest_checked_date
+      ? order.latest_checked_date
+      : order.post_date;
     return this.getFilledDate(
       order.symbol,
       order.price,
       order.side,
-      order.latest_checked_date ? order.latest_checked_date : order.post_date
+      checkedDate
     ).pipe(
+      // check the position open or not
       map((result) => {
         const { fill, check } = result;
-
         const newOrder = {
           ...order,
           fill_date: fill,
@@ -81,6 +84,58 @@ export class TradingBoxService {
         } as Order;
         this.postOrder(newOrder);
         return newOrder;
+      }),
+      // check the position close or not
+      switchMap((order) => {
+        if (
+          order.close_type ||
+          !order.fill_date ||
+          !order.stop_loss_price ||
+          !order.take_profit_price
+        ) {
+          return of(order);
+        }
+
+        return combineLatest([
+          this.getFilledDate(
+            order.symbol,
+            order.stop_loss_price,
+            order.side,
+            checkedDate
+          ),
+          this.getFilledDate(
+            order.symbol,
+            order.take_profit_price,
+            order.side,
+            checkedDate
+          ),
+        ]).pipe(
+          map((result) => {
+            const [{ fill: stop_loss_date }, { fill: take_profit_date }] =
+              result;
+
+            if (
+              (take_profit_date && !stop_loss_date) ||
+              (take_profit_date &&
+                stop_loss_date &&
+                isBefore(take_profit_date, stop_loss_date))
+            ) {
+              order.close_type = CloseType.success;
+              order.close_date = take_profit_date;
+            } else if (
+              (stop_loss_date && !take_profit_date) ||
+              (stop_loss_date &&
+                take_profit_date &&
+                isBefore(stop_loss_date, take_profit_date))
+            ) {
+              order.close_type = CloseType.fail;
+              order.close_date = stop_loss_date;
+            }
+
+            this.postOrder(order);
+            return order;
+          })
+        );
       })
     );
   }
@@ -132,6 +187,7 @@ export class TradingBoxService {
     }
 
     const kLine = kLineMap[bybitTimeFrom];
+    console.log('before(3): ', side, price, kLine);
     if (
       (Number(kLine.low) <= price && price <= Number(kLine.high)) ||
       (side === Side.buy && price >= Number(kLine.high)) ||
