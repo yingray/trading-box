@@ -34,6 +34,88 @@
     <br />
 
     <p-table
+      [value]="closedPositions$ | async"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines"
+    >
+      <ng-template pTemplate="caption">Closed Position</ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date</th>
+          <th>Symbol</th>
+          <th>Side</th>
+          <th>Result</th>
+          <th>Position Size</th>
+          <th>Closed Price</th>
+          <th>Avg Open Price</th>
+          <th>PnL</th>
+          <th>PnL(%)</th>
+          <th>Take Profit Price</th>
+          <th>Stop Loss Price</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-position>
+        <tr>
+          <td>{{ position.order.fill_date | date: "short" }}</td>
+          <td>
+            <img [src]="getSymbolIcon(position.order.symbol)" width="18px" />
+            {{ position.order.symbol }}
+          </td>
+          <td>
+            <p-tag
+              *ngIf="position.order.side === Side.buy; else sellTag"
+              severity="success"
+            >
+              {{ position.order.side }}
+            </p-tag>
+            <ng-template #sellTag>
+              <p-tag severity="danger">
+                {{ position.order.side }}
+              </p-tag>
+            </ng-template>
+          </td>
+          <td>
+            <p-tag
+              *ngIf="
+                position.order.close_type === CloseType.success;
+                else sellTag
+              "
+              severity="success"
+            >
+              {{ position.order.close_type }}
+            </p-tag>
+            <ng-template #sellTag>
+              <p-tag severity="danger">
+                {{ position.order.close_type }}
+              </p-tag>
+            </ng-template>
+          </td>
+          <td>{{ position.order.size }}</td>
+          <td>{{ position.market_price | currency }}</td>
+          <td>{{ position.order.price | currency }}</td>
+          <td>{{ position.pnl | currency }}</td>
+          <td severity="danger">{{ position.pnlr }}</td>
+          <td>{{ position.order.take_profit_price | currency }}</td>
+          <td>{{ position.order.stop_loss_price | currency }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        <div
+          *ngIf="closedPositionsSum$ | async as summary"
+          class="p-d-flex p-ai-center p-jc-between"
+        >
+          Total national size:
+          {{ summary.size | currency }}, Total PnL:
+          {{ summary.pnl | currency }} ({{
+            (summary.pnl / summary.size) * 100 | number: "0.01"
+          }}%)
+        </div>
+      </ng-template>
+    </p-table>
+
+    <br />
+
+    <p-table
       [value]="positions$ | async"
       responsiveLayout="scroll"
       styleClass="p-datatable-gridlines"
@@ -47,9 +129,11 @@
           <th>Position Size</th>
           <th>National Size</th>
           <th>Market Price</th>
+          <th>Avg Open Price</th>
           <th>PnL</th>
           <th>PnL(%)</th>
-          <th>Avg Open Price</th>
+          <th>Take Profit Price</th>
+          <th>Stop Loss Price</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-position>
@@ -75,9 +159,11 @@
           <td>{{ position.order.size }}</td>
           <td>{{ position.order.size * position.market_price | currency }}</td>
           <td>{{ position.market_price | currency }}</td>
+          <td>{{ position.order.price | currency }}</td>
           <td>{{ position.pnl | currency }}</td>
           <td severity="danger">{{ position.pnlr }}</td>
-          <td>{{ position.order.price | currency }}</td>
+          <td>{{ position.order.take_profit_price | currency }}</td>
+          <td>{{ position.order.stop_loss_price | currency }}</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="summary">
@@ -87,7 +173,9 @@
         >
           Total national size:
           {{ summary.size | currency }}, Total PnL:
-          {{ summary.pnl | currency }} ({{ summary.pnl / summary.size * 100 | number: '0.01' }}%)
+          {{ summary.pnl | currency }} ({{
+            (summary.pnl / summary.size) * 100 | number: "0.01"
+          }}%)
         </div>
       </ng-template>
     </p-table>

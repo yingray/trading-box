@@ -6,7 +6,7 @@ import { filter, map, switchMap } from 'rxjs/operators';
 import { MenuItem } from 'primeng/api';
 import { BybitService } from './core/services/bybit/bybit.service';
 import { TradingBoxService } from './core/services/trading-box/trading-box.service';
-import { Order, Position, Side } from './shared/models/order.model';
+import { Order, Position, Side, CloseType } from './shared/models/order.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -17,6 +17,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class AppComponent implements OnInit {
   title = 'web';
   Side = Side;
+  CloseType = CloseType;
 
   items: MenuItem[];
   symbols: any[];
@@ -29,6 +30,8 @@ export class AppComponent implements OnInit {
   markets$: Observable<any>;
   positions$: Observable<any>;
   positionsSum$: Observable<any>;
+  closedPositions$: Observable<any>;
+  closedPositionsSum$: Observable<any>;
 
   constructor(
     private fb: FormBuilder,
@@ -77,7 +80,7 @@ export class AppComponent implements OnInit {
       map((result) => {
         const [market, orders] = result;
         const positions = orders
-          .filter((order) => !!order.fill_date)
+          .filter((order) => !!order.fill_date && !order.close_type)
           .map((order) => {
             const curPrice = Big(market[order.symbol]);
             const pnl = curPrice
@@ -97,6 +100,47 @@ export class AppComponent implements OnInit {
     );
 
     this.positionsSum$ = this.positions$.pipe(
+      map((positions) => {
+        const result = positions.reduce(
+          (acc: any, cur: Position) => ({
+            size: Big(acc.size)
+              .add(Big(cur.order.size).mul(Big(cur.market_price)))
+              .toNumber(),
+            pnl: Big(acc.pnl).add(Big(cur.pnl)).toNumber(),
+          }),
+          { size: 0, pnl: 0 }
+        );
+        return result;
+      })
+    );
+
+    this.closedPositions$ = this.orders$.pipe(
+      map((orders: Order[]) => {
+        const positions = orders
+          .filter((order) => !!order.close_type)
+          .map((order) => {
+            const curPrice = Big(
+              order.close_type === CloseType.success
+                ? order.take_profit_price || 0
+                : order.stop_loss_price || 0
+            );
+            const pnl = curPrice
+              .minus(order.price)
+              .mul(order.size)
+              .mul(order.side === Side.buy ? 1 : -1);
+            const pnlr = pnl.div(order.price).mul(100).toFixed(2);
+            return {
+              pnl: pnl.toString(),
+              pnlr: `${pnlr.toString()}%`,
+              market_price: curPrice.toNumber(),
+              order: order,
+            } as Position;
+          });
+        return positions;
+      })
+    );
+
+    this.closedPositionsSum$ = this.closedPositions$.pipe(
       map((positions) => {
         const result = positions.reduce(
           (acc: any, cur: Position) => ({
