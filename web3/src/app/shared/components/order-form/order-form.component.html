@@ -1,0 +1,35 @@
+<nz-space nzDirection="vertical" style="padding: 16px">
+  <nz-select *nzSpaceItem ngModel="0">
+    <nz-option
+      *ngFor="let option of [{ label: '限價單', value: '0' }]"
+      [nzLabel]="option.label"
+      [nzValue]="option.value"
+    ></nz-option>
+  </nz-select>
+
+  <nz-input-number-group *nzSpaceItem nzAddOnBefore="+" nzAddOnAfter="$">
+    <nz-input-number [ngModel]="100"></nz-input-number>
+  </nz-input-number-group>
+
+  <nz-input-number-group *nzSpaceItem nzAddOnAfter="ETH">
+    <nz-input-number [ngModel]="1.45"></nz-input-number>
+  </nz-input-number-group>
+
+  <nz-input-number-group *nzSpaceItem nzAddOnBefore="止盈" nzAddOnAfter="$">
+    <nz-input-number [ngModel]="100"></nz-input-number>
+  </nz-input-number-group>
+
+  <nz-input-number-group *nzSpaceItem nzAddOnBefore="止損" nzAddOnAfter="$">
+    <nz-input-number [ngModel]="100"></nz-input-number>
+  </nz-input-number-group>
+
+  <div *nzSpaceItem nz-row>
+    <span nz-col nzSpan="12" nz-typography nzType="secondary">總額</span>
+    <span nz-col nzSpan="12" style="text-align: right">1000 USD</span>
+  </div>
+
+  <nz-button-group *nzSpaceItem>
+    <button nz-button nzType="primary" style="width: 50%">做多</button>
+    <button nz-button nzType="primary" nzDanger style="width: 50%">做空</button>
+  </nz-button-group>
+</nz-space>

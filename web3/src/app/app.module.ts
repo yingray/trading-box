@@ -25,10 +25,21 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 
+import { OrderFormComponent } from './shared/components/order-form/order-form.component';
+import { PositionListComponent } from './shared/components/position-list/position-list.component';
+import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-header.component';
+
 registerLocaleData(en);
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+
+    // custom
+    OrderFormComponent,
+    PositionListComponent,
+    SymbolHeaderComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
