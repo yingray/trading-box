@@ -27,6 +27,8 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 import { OrderFormComponent } from './shared/components/order-form/order-form.component';
 import { PositionListComponent } from './shared/components/position-list/position-list.component';
@@ -72,6 +74,8 @@ registerLocaleData(en);
     NzTabsModule,
     NzTableModule,
     NzDividerModule,
+    NzTagModule,
+    NzModalModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent],

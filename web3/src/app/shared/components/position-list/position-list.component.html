@@ -1,22 +1,32 @@
-<nz-table #basicTable [nzData]="listOfData">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Address</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let data of basicTable.data">
-      <td>{{ data.name }}</td>
-      <td>{{ data.age }}</td>
-      <td>{{ data.address }}</td>
-      <td>
-        <a>Action 一 {{ data.name }}</a>
-        <nz-divider nzType="vertical"></nz-divider>
-        <a>Delete</a>
-      </td>
-    </tr>
-  </tbody>
-</nz-table>
+<div *ngIf="orders$ | async as orders">
+  <nz-table #basicTable [nzData]="orders">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Side</th>
+        <th>Position Size</th>
+        <th>Avg Open Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of basicTable.data as Order">
+        <td>{{ order.symbol }}</td>
+        <td>
+          <nz-tag
+            *ngIf="order.side === Side.buy; else sellTag"
+            [nzColor]="'green'"
+          >
+            {{ order.side }}
+          </nz-tag>
+          <ng-template #sellTag>
+            <nz-tag [nzColor]="'red'">
+              {{ order.side }}
+            </nz-tag>
+          </ng-template>
+        </td>
+        <td>{{ order.size  | number: "0.0001" }}</td>
+        <td>{{ order.price | currency }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
