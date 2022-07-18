@@ -11,6 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { NgxsModule } from '@ngxs/store';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -28,6 +31,8 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { OrderFormComponent } from './shared/components/order-form/order-form.component';
 import { PositionListComponent } from './shared/components/position-list/position-list.component';
 import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-header.component';
+import { environment } from 'src/environments/environment';
+import { MarketsState } from './shared/components/markets/state/markets.state';
 
 registerLocaleData(en);
 
@@ -46,6 +51,12 @@ registerLocaleData(en);
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
+
+    // Store
+    NgxsModule.forRoot([MarketsState], {
+      developmentMode: !environment.production,
+    }),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
 
     // Nz
     NzTypographyModule,

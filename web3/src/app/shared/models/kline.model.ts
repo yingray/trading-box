@@ -13,3 +13,12 @@ export type KLine = {
 export type KLineMap = {
   [bybit_open_time: number]: KLine;
 };
+
+export type TradeRecordResponse = {
+  result: TradeRecord[];
+};
+
+export type TradeRecord = {
+  symbol: string;
+  price: number;
+};
