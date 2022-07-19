@@ -16,8 +16,6 @@ import { BybitService } from '../bybit/bybit.service';
   providedIn: 'root',
 })
 export class TradingBoxService {
-  kLineMaps: { [key: string]: KLineMap } = {};
-
   constructor(private bybitService: BybitService) {}
 
   getAllOrders(): Observable<Order[]> {
@@ -57,6 +55,7 @@ export class TradingBoxService {
       order.price,
     ].join('-');
     storage.set(orderKey, order);
+    return of({ result: 'ok' });
   }
 
   checkOrderIsFilled(order: Order): Observable<Order> {
@@ -77,11 +76,13 @@ export class TradingBoxService {
       // check the position open or not
       map((result) => {
         const { fill, check } = result;
-        const newOrder = {
+        let newOrder = {
           ...order,
-          fill_date: fill,
           latest_checked_date: check,
         } as Order;
+        if (fill) {
+          newOrder.fill_date = fill;
+        }
         this.postOrder(newOrder);
         return newOrder;
       }),
@@ -96,17 +97,19 @@ export class TradingBoxService {
           return of(order);
         }
 
+        const closeSide = order.side == Side.buy ? Side.sell : Side.buy;
         return combineLatest([
           this.getFilledDate(
             order.symbol,
             order.stop_loss_price,
-            order.side,
-            checkedDate
+            closeSide,
+            checkedDate,
+            true
           ),
           this.getFilledDate(
             order.symbol,
             order.take_profit_price,
-            order.side,
+            closeSide,
             checkedDate
           ),
         ]).pipe(
@@ -142,20 +145,15 @@ export class TradingBoxService {
 
   getKLineMap(symbol: string, noCache?: boolean): KLineMap | null {
     const key = `kl-${symbol}`;
-
-    if (!noCache && this.kLineMaps && this.kLineMaps[key]) {
-      return this.kLineMaps[key];
-    }
-
-    this.kLineMaps[key] = storage.get(key);
-    return this.kLineMaps[key];
+    return storage.get(key);
   }
 
   getFilledDate(
     symbol: string,
     price: number,
     side: Side,
-    dateFrom: Date
+    dateFrom: Date,
+    stopLoss?: boolean
   ): Observable<{ fill?: Date; check: Date }> {
     const kLineMap = this.getKLineMap(symbol);
     const bybitTimeFrom = getBybitTime(getDateForZeroSecOfMin(dateFrom));
@@ -175,7 +173,7 @@ export class TradingBoxService {
             return of({ check: new Date(bybitTimeNow * 1000) });
           }
 
-          const newKLineMap = this.getKLineMap(symbol, true);
+          const newKLineMap = this.getKLineMap(symbol);
           if (!newKLineMap || !(bybitTimeFrom in newKLineMap)) {
             console.log('(2)-2: end', dateFrom);
             return of({ check: new Date(bybitTimeNow * 1000) });
@@ -187,11 +185,11 @@ export class TradingBoxService {
     }
 
     const kLine = kLineMap[bybitTimeFrom];
-    console.log('before(3): ', side, price, kLine);
+    console.log('before(3): ', side, price, kLine, stopLoss);
     if (
       (Number(kLine.low) <= price && price <= Number(kLine.high)) ||
-      (side === Side.buy && price >= Number(kLine.high)) ||
-      (side === Side.sell && price <= Number(kLine.low))
+      (!stopLoss && side === Side.buy && price >= Number(kLine.high)) ||
+      (!stopLoss && side === Side.sell && price <= Number(kLine.low))
     ) {
       console.log('(3): end', dateFrom);
       return of({
