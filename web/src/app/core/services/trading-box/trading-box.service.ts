@@ -58,6 +58,19 @@ export class TradingBoxService {
     return of({ result: 'ok' });
   }
 
+  removeOrder(order: Order) {
+    const postDate = getDateForZeroSecOfMin(order.post_date);
+    const orderKey = [
+      'order',
+      postDate.getTime(),
+      order.side,
+      order.size,
+      order.price,
+    ].join('-');
+    storage.remove(orderKey);
+    return of({ result: 'ok' });
+  }
+
   checkOrderIsFilled(order: Order): Observable<Order> {
     if (order.close_type) {
       return of(order);

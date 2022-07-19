@@ -2,6 +2,7 @@
   <nz-table #basicTable [nzData]="orders" nzSize="small">
     <thead>
       <tr>
+        <th nzWidth="60px"></th>
         <th>時間</th>
         <th>市場</th>
         <th>交易方向</th>
@@ -14,6 +15,11 @@
     </thead>
     <tbody>
       <tr *ngFor="let order of basicTable.data as Order">
+        <td>
+          <button nz-button nzDanger nzSize="small" (click)="removeClick(order)">
+            <i nz-icon nzType="delete"></i>
+          </button>
+        </td>
         <td>{{ order.post_date | date: "short" }}</td>
         <td>{{ order.symbol }}</td>
         <td>
@@ -24,7 +30,7 @@
             做多
           </nz-tag>
           <ng-template #sellTag>
-            <nz-tag [nzColor]="'red'"> 做空 </nz-tag>
+            <nz-tag [nzColor]="'red'">做空</nz-tag>
           </ng-template>
         </td>
         <td>限價單</td>

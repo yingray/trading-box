@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import Big from 'big.js';
-import { of, tap } from 'rxjs';
+import { map, of, tap } from 'rxjs';
 import { TradingBoxService } from 'src/app/core/services/trading-box/trading-box.service';
 import {
   CloseType,
@@ -14,7 +14,11 @@ import {
   MarketsState,
   MarketsStateModel,
 } from '../../markets/state/markets.state';
-import { GetOrdersAction, PostOrderAction } from './orders.actions';
+import {
+  GetOrdersAction,
+  PostOrderAction,
+  RemoveOrderAction,
+} from './orders.actions';
 
 export type OrdersStateModel = Order[];
 
@@ -130,5 +134,13 @@ export class OrdersState {
       take_profit_price: action.order.take_profit_price,
     } as Order;
     return this.tradingBoxService.postOrder(newOrder);
+  }
+
+  @Action(RemoveOrderAction)
+  removeOrderAction(
+    ctx: StateContext<OrdersStateModel>,
+    action: RemoveOrderAction
+  ) {
+    return this.tradingBoxService.removeOrder(action.order);
   }
 }
