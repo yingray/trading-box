@@ -21,4 +21,14 @@ export type TradeRecordResponse = {
 export type TradeRecord = {
   symbol: string;
   price: number;
+
+  // cross_seq: 9370562099
+  // price: 1529.2
+  // side: "Buy"
+  // size: 1753
+  // symbol: "ETHUSD"
+  // tick_direction: "PlusTick"
+  // timestamp: "2022-07-19T06:01:10.000Z"
+  // trade_id: "063c60e4-dcd3-516a-8a09-7aa872818969"
+  // trade_time_ms: 1658210470664
 };

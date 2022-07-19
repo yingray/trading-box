@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Select, Store } from '@ngxs/store';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Observable } from 'rxjs';
+import { filter, Observable, take } from 'rxjs';
 import { Side } from '../../models/order.model';
 import {
   MarketsState,
@@ -45,13 +45,18 @@ export class OrderFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.market$.subscribe((market) => {
-      this.formGroup.patchValue({
-        price: market.price,
-        take_profit_price: Math.round(market.price * 1.08),
-        stop_loss_price: Math.round(market.price * 0.98),
+    this.market$
+      .pipe(
+        filter((market) => !!market.price),
+        take(1)
+      )
+      .subscribe((market) => {
+        this.formGroup.patchValue({
+          price: market.price,
+          take_profit_price: Math.round(market.price * 1.08),
+          stop_loss_price: Math.round(market.price * 0.98),
+        });
       });
-    });
   }
 
   showModal(side: Side): void {
