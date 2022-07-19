@@ -1,52 +1,90 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { environment } from '../environments/environment';
-import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { NZ_I18N } from 'ng-zorro-antd/i18n';
+import { en_US } from 'ng-zorro-antd/i18n';
+import { registerLocaleData } from '@angular/common';
+import en from '@angular/common/locales/en';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
-import { TableModule } from 'primeng-lts/table';
-import { TagModule } from 'primeng-lts/tag';
-import { MenubarModule } from 'primeng-lts/menubar';
-import { DropdownModule } from 'primeng-lts/dropdown';
-import { InputNumberModule } from 'primeng-lts/inputnumber';
-import { SelectButtonModule } from 'primeng-lts/selectbutton';
-import { CalendarModule } from 'primeng-lts/calendar';
-import { ButtonModule } from 'primeng-lts/button';
-import { AccordionModule } from 'primeng-lts/accordion';
-import { CardModule } from 'primeng-lts/card';
-import { BadgeModule } from 'primeng-lts/badge';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { BybitService } from './core/services/bybit/bybit.service';
+import { NgxsModule } from '@ngxs/store';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { MarketsState } from './shared/components/markets/state/markets.state';
+import { OrdersState } from './shared/components/order-list/state/orders.state';
+
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+
+import { environment } from 'src/environments/environment';
+import { OrderFormComponent } from './shared/components/order-form/order-form.component';
+import { PositionListComponent } from './shared/components/position-list/position-list.component';
+import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-header.component';
+import { OrderListComponent } from './shared/components/order-list/order-list.component';
+import { ClosedPositionListComponent } from './shared/components/closed-position-list/closed-position-list.component';
+
+registerLocaleData(en);
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+
+    // custom
+    OrderFormComponent,
+    PositionListComponent,
+    SymbolHeaderComponent,
+    OrderListComponent,
+    ClosedPositionListComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
     HttpClientModule,
-    ReactiveFormsModule,
     BrowserAnimationsModule,
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    TableModule,
-    TagModule,
-    MenubarModule,
-    DropdownModule,
-    InputNumberModule,
-    SelectButtonModule,
-    CalendarModule,
-    ButtonModule,
-    AccordionModule,
-    CardModule,
-    BadgeModule,
+    ReactiveFormsModule,
+
+    // Store
+    NgxsModule.forRoot([MarketsState, OrdersState], {
+      developmentMode: !environment.production,
+    }),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+
+    // Nz
+    NzTypographyModule,
+    NzIconModule,
+    NzButtonModule,
+    NzGridModule,
+    NzPageHeaderModule,
+    NzSpaceModule,
+    NzSelectModule,
+    NzCardModule,
+    NzInputModule,
+    NzInputNumberModule,
+    NzTabsModule,
+    NzTableModule,
+    NzDividerModule,
+    NzTagModule,
+    NzModalModule,
   ],
-  providers: [BybitService],
+  providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

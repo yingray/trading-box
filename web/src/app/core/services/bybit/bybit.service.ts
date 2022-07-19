@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import Big from 'big.js';
 import { fromPairs } from 'lodash';
 import { Observable, of } from 'rxjs';
-import { catchError, map, switchMap, timeout } from 'rxjs/operators';
-import { KLine, KLineMap } from 'src/app/shared/models/kline.model';
-import { Order, Side } from 'src/app/shared/models/order.model';
+import { catchError, map } from 'rxjs/operators';
+import {
+  KLine,
+  KLineMap,
+  TradeRecordResponse,
+} from 'src/app/shared/models/kline.model';
 import { storage } from 'src/app/shared/utils/storage.util';
 import { getQS } from 'src/app/shared/utils/string.util';
 import {
@@ -43,10 +45,13 @@ export class BybitService {
     return this.http.get(url);
   }
 
-  getTradingRecord(symbol: string, limit: number) {
+  getTradingRecord(
+    symbol: string,
+    limit: number
+  ): Observable<TradeRecordResponse> {
     const qs = getQS({ symbol, limit: String(limit) });
     const url = `${this.baseUrl}/v2/public/trading-records?${qs}`;
-    return this.http.get(url);
+    return this.http.get<TradeRecordResponse>(url);
   }
 
   getKLine(symbol: string, dateFrom: Date): Observable<{ result: KLine[] }> {

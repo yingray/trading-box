@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-body {
-  background-color: var(--surface-a);
-  font-family: var(--font-family);
-  color: var(--text-color);
+nz-select,
+nz-space,
+nz-input-number-group,
+nz-button-group,
+.ant-input-number {
+  width: 100%;
 }
+
