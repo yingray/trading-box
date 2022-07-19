@@ -57,7 +57,7 @@ export class OrdersState {
           .minus(order.price)
           .mul(order.size)
           .mul(order.side === Side.buy ? 1 : -1);
-        const pnlr = pnl.div(order.price).mul(100).toFixed(2);
+        const pnlr = pnl.div(order.price).div(order.size).mul(100).toFixed(2);
         return {
           ...order,
           position_pnl: pnl.toNumber(),

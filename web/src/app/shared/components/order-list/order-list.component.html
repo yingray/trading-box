@@ -1,5 +1,10 @@
 <div *ngIf="orders$ | async as orders">
-  <nz-table #basicTable [nzData]="orders" nzSize="small">
+  <nz-table
+    #basicTable
+    [nzData]="orders"
+    nzSize="small"
+    [nzScroll]="{ x: '768px' }"
+  >
     <thead>
       <tr>
         <th nzWidth="60px"></th>
@@ -16,7 +21,12 @@
     <tbody>
       <tr *ngFor="let order of basicTable.data as Order">
         <td>
-          <button nz-button nzDanger nzSize="small" (click)="removeClick(order)">
+          <button
+            nz-button
+            nzDanger
+            nzSize="small"
+            (click)="removeClick(order)"
+          >
             <i nz-icon nzType="delete"></i>
           </button>
         </td>

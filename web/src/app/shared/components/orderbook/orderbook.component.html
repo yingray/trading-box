@@ -1,0 +1,33 @@
+<div class="app-orderbook">
+  <button
+    nz-button
+    nzType="default"
+    nzBlock
+    *ngIf="market$ | async as market"
+  >
+    {{ market.price.toString() }}
+  </button>
+  <div nz-row nzJustify="space-between">
+    <div nz-col nzSpan="11">
+      <div
+        nz-row
+        nzJustify="space-between"
+        *ngFor="let item of buyOrderbook$ | async"
+      >
+        <span nz-typography nzType="success">{{ item.size }}</span>
+        <span nz-typography nzType="success">{{ item.price }}</span>
+      </div>
+    </div>
+    <div nz-col nzSpan="11">
+      <div
+        nz-row
+        nzJustify="space-between"
+        *ngFor="let item of sellOrderbook$ | async"
+        class=""
+      >
+        <span nz-typography nzType="danger">{{ item.price }}</span>
+        <span nz-typography nzType="danger">{{ item.size }}</span>
+      </div>
+    </div>
+  </div>
+</div>

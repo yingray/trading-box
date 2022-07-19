@@ -32,6 +32,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 import { environment } from 'src/environments/environment';
 import { OrderFormComponent } from './shared/components/order-form/order-form.component';
@@ -39,6 +40,7 @@ import { PositionListComponent } from './shared/components/position-list/positio
 import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-header.component';
 import { OrderListComponent } from './shared/components/order-list/order-list.component';
 import { ClosedPositionListComponent } from './shared/components/closed-position-list/closed-position-list.component';
+import { OrderbookComponent } from './shared/components/orderbook/orderbook.component';
 
 registerLocaleData(en);
 
@@ -52,6 +54,7 @@ registerLocaleData(en);
     SymbolHeaderComponent,
     OrderListComponent,
     ClosedPositionListComponent,
+    OrderbookComponent,
   ],
   imports: [
     BrowserModule,
@@ -83,6 +86,7 @@ registerLocaleData(en);
     NzDividerModule,
     NzTagModule,
     NzModalModule,
+    NzStatisticModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent],
