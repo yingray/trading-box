@@ -20,6 +20,16 @@ export type Order = {
   take_profit_price?: number;
   close_date?: Date;
   close_type?: CloseType;
+
+  // position
+  position_pnl: number;
+  position_pnlr: string;
+};
+
+export type CountForTabs = {
+  position_count: number;
+  order_count: number;
+  closed_position_count: number;
 };
 
 export type Position = {

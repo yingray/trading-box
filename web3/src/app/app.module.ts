@@ -13,6 +13,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { MarketsState } from './shared/components/markets/state/markets.state';
+import { OrdersState } from './shared/components/order-list/state/orders.state';
 
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -30,11 +32,12 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 
+import { environment } from 'src/environments/environment';
 import { OrderFormComponent } from './shared/components/order-form/order-form.component';
 import { PositionListComponent } from './shared/components/position-list/position-list.component';
 import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-header.component';
-import { environment } from 'src/environments/environment';
-import { MarketsState } from './shared/components/markets/state/markets.state';
+import { OrderListComponent } from './shared/components/order-list/order-list.component';
+import { ClosedPositionListComponent } from './shared/components/closed-position-list/closed-position-list.component';
 
 registerLocaleData(en);
 
@@ -46,6 +49,8 @@ registerLocaleData(en);
     OrderFormComponent,
     PositionListComponent,
     SymbolHeaderComponent,
+    OrderListComponent,
+    ClosedPositionListComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,7 +60,7 @@ registerLocaleData(en);
     BrowserAnimationsModule,
 
     // Store
-    NgxsModule.forRoot([MarketsState], {
+    NgxsModule.forRoot([MarketsState, OrdersState], {
       developmentMode: !environment.production,
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),

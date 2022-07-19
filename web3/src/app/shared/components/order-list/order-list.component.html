@@ -2,6 +2,7 @@
   <nz-table #basicTable [nzData]="orders" nzSize="small">
     <thead>
       <tr>
+        <th>時間</th>
         <th>市場</th>
         <th>交易方向</th>
         <th>類型</th>
@@ -9,29 +10,28 @@
         <th>開倉持倉均價</th>
         <th>止盈價</th>
         <th>止損價</th>
-        <th>盈虧</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let order of basicTable.data as Order">
+        <td>{{ order.post_date | date: "short" }}</td>
         <td>{{ order.symbol }}</td>
         <td>
-          <nz-tag [nzColor]="order.side === Side.buy ? 'green' : 'red'">
-            {{ order.side === Side.buy ? "做多" : "做空" }}
+          <nz-tag
+            *ngIf="order.side === Side.buy; else sellTag"
+            [nzColor]="'green'"
+          >
+            做多
           </nz-tag>
+          <ng-template #sellTag>
+            <nz-tag [nzColor]="'red'"> 做空 </nz-tag>
+          </ng-template>
         </td>
         <td>限價單</td>
         <td>{{ order.size | number: "0.0001" }} ETH</td>
         <td>{{ order.price | currency }}</td>
         <td>{{ order.take_profit_price | currency }}</td>
         <td>{{ order.stop_loss_price | currency }}</td>
-        <td
-          nz-typography
-          [nzType]="order.position_pnl >= 0 ? 'success' : 'danger'"
-        >
-          {{ order.position_pnl | currency }}
-          <code>{{ order.position_pnlr }}</code>
-        </td>
       </tr>
     </tbody>
   </nz-table>

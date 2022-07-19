@@ -10,16 +10,16 @@
     <!-- orderbook here -->
   </div>
 
-  <div nz-col nzSpan="24">
+  <div nz-col nzSpan="24" *ngIf="countForTabs$ | async as cft">
     <nz-tabset style="padding: 16px">
-      <nz-tab nzTitle="持倉(0)">
+      <nz-tab nzTitle="持倉({{ cft.position_count }})">
         <app-position-list></app-position-list>
       </nz-tab>
-      <nz-tab nzTitle="訂單(0)">
-        <app-position-list></app-position-list>
+      <nz-tab nzTitle="訂單({{ cft.order_count }})">
+        <app-order-list></app-order-list>
       </nz-tab>
-      <nz-tab nzTitle="平倉(0)">
-        <app-position-list></app-position-list>
+      <nz-tab nzTitle="平倉({{ cft.closed_position_count }})">
+        <app-closed-position-list></app-closed-position-list>
       </nz-tab>
     </nz-tabset>
   </div>

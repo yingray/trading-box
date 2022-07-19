@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "web3": {
+    "trading-box": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/web3",
+            "outputPath": "dist/trading-box",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -78,10 +78,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "web3:build:production"
+              "browserTarget": "trading-box:build:production"
             },
             "development": {
-              "browserTarget": "web3:build:development"
+              "browserTarget": "trading-box:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "web3:build"
+            "browserTarget": "trading-box:build"
           }
         },
         "test": {
@@ -113,5 +113,5 @@
       }
     }
   },
-  "defaultProject": "web3"
+  "defaultProject": "trading-box"
 }

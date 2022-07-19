@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Select } from '@ngxs/store';
 import { Observable, of } from 'rxjs';
 import { TradingBoxService } from 'src/app/core/services/trading-box/trading-box.service';
 import { Order, Side } from '../../models/order.model';
+import { OrdersState } from '../order-list/state/orders.state';
 
 interface Person {
   key: string;
@@ -18,11 +20,9 @@ interface Person {
 export class PositionListComponent implements OnInit {
   Side = Side;
 
-  orders$: Observable<Order[]>;
+  @Select(OrdersState.getPositions) orders$!: Observable<Order[]>;
 
-  constructor(private tradingBoxService: TradingBoxService) {
-    this.orders$ = tradingBoxService.getAllOrdersWithCheck();
-  }
+  constructor() {}
 
   ngOnInit(): void {}
 }

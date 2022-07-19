@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { State, Action, StateContext } from '@ngxs/store';
+import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { tap } from 'rxjs';
 import { BybitService } from 'src/app/core/services/bybit/bybit.service';
 import { TradeRecordResponse } from 'src/app/shared/models/kline.model';
@@ -23,6 +23,11 @@ const defaults = {
 export class MarketsState {
   constructor(private bybitService: BybitService) {}
 
+  @Selector([MarketsState])
+  static getMarkets(marketsState: MarketsStateModel) {
+    return marketsState;
+  }
+
   @Action(GetTradingRecordAction)
   getTradingRecord(
     ctx: StateContext<MarketsStateModel>,
@@ -31,7 +36,6 @@ export class MarketsState {
     return this.bybitService.getTradingRecord('ETHUSD', 1).pipe(
       tap<TradeRecordResponse>(
         (response: TradeRecordResponse) => {
-          console.log(response);
           return this.setMarkets(ctx, response);
         },
         () => {}
