@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import Big from 'big.js';
-import { tap } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { TradingBoxService } from 'src/app/core/services/trading-box/trading-box.service';
 import {
   CloseType,
@@ -14,7 +14,7 @@ import {
   MarketsState,
   MarketsStateModel,
 } from '../../markets/state/markets.state';
-import { GetOrdersAction } from './orders.actions';
+import { GetOrdersAction, PostOrderAction } from './orders.actions';
 
 export type OrdersStateModel = Order[];
 
@@ -108,6 +108,27 @@ export class OrdersState {
   }
 
   setOrders(ctx: StateContext<OrdersStateModel>, response: Order[]): void {
+    response.sort(
+      (a, b) =>
+        new Date(b.post_date).getTime() - new Date(a.post_date).getTime()
+    );
     ctx.setState(response);
+  }
+
+  @Action(PostOrderAction)
+  postOrderAction(
+    ctx: StateContext<OrdersStateModel>,
+    action: PostOrderAction
+  ) {
+    const newOrder = {
+      symbol: action.order.symbol || 'ETHUSD',
+      post_date: action.order.post_date || new Date(),
+      size: action.order.size,
+      price: action.order.price,
+      side: action.order.side,
+      stop_loss_price: action.order.stop_loss_price,
+      take_profit_price: action.order.take_profit_price,
+    } as Order;
+    return this.tradingBoxService.postOrder(newOrder);
   }
 }
