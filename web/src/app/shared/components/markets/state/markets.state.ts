@@ -78,7 +78,10 @@ export class MarketsState {
 
     subject.next({
       op: 'subscribe',
-      args: [`${WsTopic.trade}.ETHUSD`, `${WsTopic.orderbook}.ETHUSD`],
+      args: [
+        `${WsTopic.trade}.ETHUSD`,
+        // `${WsTopic.orderbook}.ETHUSD`
+      ],
     });
     this.send = true;
 

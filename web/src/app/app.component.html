@@ -2,12 +2,14 @@
 
 <nz-divider style="margin: 0"></nz-divider>
 
+
 <div nz-row>
   <div nz-col nzSpan="14">
-    <app-order-form></app-order-form>
+    <app-tradingview></app-tradingview>
   </div>
   <div nz-col nzSpan="10">
-    <app-orderbook></app-orderbook>
+    <app-order-form></app-order-form>
+    <!-- <app-orderbook></app-orderbook> -->
   </div>
 
   <div nz-col nzSpan="24" *ngIf="countForTabs$ | async as cft">

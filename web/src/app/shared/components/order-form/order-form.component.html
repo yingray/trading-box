@@ -1,5 +1,8 @@
 <form nz-form [formGroup]="formGroup" *ngIf="market$ | async">
-  <nz-space nzDirection="vertical" style="padding: 16px">
+  <nz-space
+    nzDirection="vertical"
+    style="padding-left: 16px; padding-right: 16px"
+  >
     <nz-select *nzSpaceItem formControlName="order_type">
       <nz-option
         *ngFor="let option of orderTypes"

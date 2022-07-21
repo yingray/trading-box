@@ -41,6 +41,7 @@ import { SymbolHeaderComponent } from './shared/components/symbol-header/symbol-
 import { OrderListComponent } from './shared/components/order-list/order-list.component';
 import { ClosedPositionListComponent } from './shared/components/closed-position-list/closed-position-list.component';
 import { OrderbookComponent } from './shared/components/orderbook/orderbook.component';
+import { TradingviewComponent } from './shared/components/tradingview/tradingview.component';
 
 registerLocaleData(en);
 
@@ -55,6 +56,7 @@ registerLocaleData(en);
     OrderListComponent,
     ClosedPositionListComponent,
     OrderbookComponent,
+    TradingviewComponent,
   ],
   imports: [
     BrowserModule,
