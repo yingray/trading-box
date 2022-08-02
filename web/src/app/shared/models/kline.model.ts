@@ -6,19 +6,24 @@ export type WsResponse = {
 
 export enum WsTopic {
   trade = 'trade',
+  kline = 'klineV2.1',
   orderbook = 'orderBookL2_25',
 }
 
 export type KLine = {
-  close: string;
+  close?: string;
   high: string;
-  interval: string;
+  interval?: string;
   low: string;
-  open: string;
+  open?: string;
   open_time: number;
-  symbol: string;
-  turnover: string;
-  volume: string;
+  symbol?: string;
+  turnover?: string;
+  volume?: string;
+
+  // ws
+  start?: number;
+  end?: number;
 };
 
 export type KLineMap = {

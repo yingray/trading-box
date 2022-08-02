@@ -1,3 +1,4 @@
+import { KLine } from 'src/app/shared/models/kline.model';
 import { Order } from 'src/app/shared/models/order.model';
 
 export class GetOrdersAction {
@@ -13,4 +14,9 @@ export class PostOrderAction {
 export class RemoveOrderAction {
   static readonly type = '[Orders] removeOrder';
   constructor(public order: Order) {}
+}
+
+export class CheckOrderAction {
+  static readonly type = '[Orders] checkOrder';
+  constructor(public kline: KLine) {}
 }

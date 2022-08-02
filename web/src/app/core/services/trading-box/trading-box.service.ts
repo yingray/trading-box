@@ -12,6 +12,47 @@ import {
 } from 'src/app/shared/utils/time.util';
 import { BybitService } from '../bybit/bybit.service';
 
+export function checkFill(
+  kLine: KLine,
+  orderSide: Side,
+  orderPrice: number,
+  stopLoss?: boolean
+): Observable<Date | null> {
+  const time = kLine.open_time || kLine.end || 0;
+  console.log(
+    '[check fill]: ',
+    time,
+    kLine.low,
+    kLine.high,
+    orderSide,
+    orderPrice,
+    'stop:',
+    !!stopLoss
+  );
+  const openDate = new Date(time * 1000);
+
+  if (stopLoss) {
+    if (orderSide === Side.buy && orderPrice >= Number(kLine.low)) {
+      return of(openDate);
+    }
+    if (orderSide === Side.sell && orderPrice <= Number(kLine.high)) {
+      return of(openDate);
+    }
+  }
+
+  if (orderSide === Side.buy && orderPrice >= Number(kLine.high)) {
+    return of(openDate);
+  }
+  if (orderSide === Side.sell && orderPrice <= Number(kLine.low)) {
+    return of(openDate);
+  }
+  if (Number(kLine.low) <= orderPrice && orderPrice <= Number(kLine.high)) {
+    return of(openDate);
+  }
+
+  return of(null);
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -199,19 +240,24 @@ export class TradingBoxService {
 
     const kLine = kLineMap[bybitTimeFrom];
     console.log('before(3): ', side, price, kLine, stopLoss);
-    if (
-      (Number(kLine.low) <= price && price <= Number(kLine.high)) ||
-      (!stopLoss && side === Side.buy && price >= Number(kLine.high)) ||
-      (!stopLoss && side === Side.sell && price <= Number(kLine.low))
-    ) {
-      console.log('(3): end', dateFrom);
-      return of({
-        fill: new Date(kLine.open_time * 1000),
-        check: new Date(bybitTimeNow * 1000),
-      });
-    }
+    return checkFill(kLine, side, price, stopLoss).pipe(
+      switchMap((date) => {
+        if (date) {
+          console.log('(3): end', dateFrom);
+          return of({
+            fill: new Date(kLine.open_time * 1000),
+            check: new Date(bybitTimeNow * 1000),
+          });
+        }
 
-    console.log('(4): continue', dateFrom);
-    return this.getFilledDate(symbol, price, side, addMinutes(dateFrom, 200));
+        console.log('(4): continue', dateFrom);
+        return this.getFilledDate(
+          symbol,
+          price,
+          side,
+          addMinutes(dateFrom, 200)
+        );
+      })
+    );
   }
 }
