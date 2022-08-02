@@ -10,6 +10,7 @@ import {
   WsResponse,
   WsTopic,
 } from 'src/app/shared/models/kline.model';
+import { CheckOrderAction } from '../../order-list/state/orders.actions';
 import { GetTradingRecordAction } from './markets.actions';
 
 const subject = webSocket('wss://stream.bybit.com/realtime');
@@ -79,7 +80,8 @@ export class MarketsState {
     subject.next({
       op: 'subscribe',
       args: [
-        `${WsTopic.trade}.ETHUSD`,
+        // `${WsTopic.trade}.ETHUSD`,
+        `${WsTopic.kline}.ETHUSD`,
         // `${WsTopic.orderbook}.ETHUSD`
       ],
     });
@@ -106,6 +108,13 @@ export class MarketsState {
           price: trade.price,
         });
       }
+      return;
+    }
+
+    if (response.topic.startsWith(WsTopic.kline)) {
+      const kline = response.data[0];
+      ctx.patchState({ price: kline.close });
+      ctx.dispatch(new CheckOrderAction(kline));
       return;
     }
 

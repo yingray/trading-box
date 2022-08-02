@@ -1,25 +1,25 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TradingviewComponent } from './tradingview.component';
+// import { TradingviewComponent } from './tradingview.component';
 
-describe('TradingviewComponent', () => {
-  let component: TradingviewComponent;
-  let fixture: ComponentFixture<TradingviewComponent>;
+// describe('TradingviewComponent', () => {
+//   let component: TradingviewComponent;
+//   let fixture: ComponentFixture<TradingviewComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ TradingviewComponent ]
-    })
-    .compileComponents();
-  });
+//   beforeEach(async () => {
+//     await TestBed.configureTestingModule({
+//       declarations: [ TradingviewComponent ]
+//     })
+//     .compileComponents();
+//   });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TradingviewComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+//   beforeEach(() => {
+//     fixture = TestBed.createComponent(TradingviewComponent);
+//     component = fixture.componentInstance;
+//     fixture.detectChanges();
+//   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+//   it('should create', () => {
+//     expect(component).toBeTruthy();
+//   });
+// });

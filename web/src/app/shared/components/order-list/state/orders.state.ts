@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import Big from 'big.js';
-import { map, of, tap } from 'rxjs';
-import { TradingBoxService } from 'src/app/core/services/trading-box/trading-box.service';
+import { combineLatest, map, of, switchMap, tap } from 'rxjs';
+import {
+  checkFill,
+  TradingBoxService,
+} from 'src/app/core/services/trading-box/trading-box.service';
 import {
   CloseType,
   CountForTabs,
@@ -15,6 +18,7 @@ import {
   MarketsStateModel,
 } from '../../markets/state/markets.state';
 import {
+  CheckOrderAction,
   GetOrdersAction,
   PostOrderAction,
   RemoveOrderAction,
@@ -142,5 +146,79 @@ export class OrdersState {
     action: RemoveOrderAction
   ) {
     return this.tradingBoxService.removeOrder(action.order);
+  }
+
+  @Action(CheckOrderAction)
+  checkOrderAction(
+    ctx: StateContext<OrdersStateModel>,
+    action: CheckOrderAction
+  ) {
+    const unfilled = OrdersState.getOrders(ctx.getState());
+    console.log({ unfilled });
+
+    const filled = OrdersState.getFilledOrders(ctx.getState(), {
+      price: Number(action.kline.close),
+    } as MarketsStateModel);
+
+    const checks = [];
+
+    for (let uf of unfilled) {
+      checks.push({
+        symbol: uf.symbol,
+        price: uf.stop_loss_price,
+        side: uf.side,
+        dateFrom: uf.latest_checked_date,
+        order: uf,
+      });
+    }
+
+    const flatten = filled.reduce((acc: any[], cur: Order) => {
+      const closeSide = cur.side == Side.buy ? Side.sell : Side.buy;
+      return [
+        ...acc,
+        {
+          symbol: cur.symbol,
+          price: cur.stop_loss_price,
+          side: closeSide,
+          dateFrom: cur.latest_checked_date,
+          stopLoss: true,
+          order: cur,
+        },
+        {
+          symbol: cur.symbol,
+          price: cur.take_profit_price,
+          side: closeSide,
+          dateFrom: cur.latest_checked_date,
+          stopLoss: false,
+          order: cur,
+        },
+      ];
+    }, checks);
+
+    return combineLatest(
+      flatten.map((fla) =>
+        checkFill(action.kline, fla.side, fla.price, fla.stopLoss).pipe(
+          map((filledDate) => [filledDate as Date, fla.order as Order])
+        )
+      )
+    ).pipe(
+      switchMap((resp) =>
+        combineLatest(
+          resp.map((res) => {
+            const [date, order] = res as [Date, Order];
+            if (order.fill_date) {
+              return this.tradingBoxService.postOrder({
+                ...order,
+                close_date: date,
+              });
+            }
+            return this.tradingBoxService.postOrder({
+              ...order,
+              fill_date: date,
+            });
+          })
+        )
+      )
+    );
   }
 }
